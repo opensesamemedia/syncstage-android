@@ -67,7 +67,7 @@ The SyncStage test application shows you basic UI representation of a typical SD
 
 You must first copy and paste your Sync Stage early access token into the textbox at the top of the user interface.
 
-![SyncStage Android Test Application](./images/android_app.png)
+![SyncStage Android Test Application](./images/android_app.jpg)
 
 As you can see in the code, the access token is passed as a parameter when creating the SyncStage object.
 

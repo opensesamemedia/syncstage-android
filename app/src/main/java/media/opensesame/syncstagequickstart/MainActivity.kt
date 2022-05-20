@@ -9,8 +9,6 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
@@ -30,15 +28,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
 import com.google.gson.GsonBuilder
 import media.opensesame.syncstagequickstart.ui.theme.FfmpegTestTheme
 import media.opensesame.syncstagesdk.SyncStage
+import media.opensesame.syncstagesdk.ConnectionData
 
 class MainActivity : ComponentActivity() {
     val TAG = "MainActivity"
     var accessToken = ""
     var userId = 0
     private var sdk: SyncStage? = null
+    private var streamIdsLiveData = MutableLiveData<List<String>>(listOf())
 
     private val requestMultiplePermissions =  registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
         permissions.entries.forEach {
@@ -59,6 +60,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun updateStreamIdsList(connectionData: ConnectionData){
+        showToastWithSerializedObject(connectionData)
+        streamIdsLiveData.postValue(sdk?.getStreamIds() ?: mutableListOf())
+    }
+
     // SDK interfacing =============================================================================
 
     fun initSDK() {
@@ -71,6 +77,8 @@ class MainActivity : ComponentActivity() {
             },
             onInitializationErrorListener = { _, msg -> showToastFromNonUIThread(msg) },
             onOperationErrorListener = { _, msg -> showToastFromNonUIThread(msg) },
+            onConnectionDataChange = {connectionData -> },
+            onStreamListChange = {connectionData -> updateStreamIdsList(connectionData)},
             throwExceptionsOnErrors = false,
         )
         showToast("Initialization in progress...")
@@ -91,9 +99,9 @@ class MainActivity : ComponentActivity() {
     private fun getConnectionData(){
         if (sdk?.isInitialized() == true) {
             val connectionData = sdk?.getConnectionData()
-            val gsonPretty = GsonBuilder().setPrettyPrinting().create()
-            val connectionDataString: String = gsonPretty.toJson(connectionData)
-            showToast(connectionDataString)
+            if (connectionData != null) {
+                showToastWithSerializedObject(connectionData)
+            }
         } else {
             showToast("SDK not initialized.")
         }
@@ -137,10 +145,17 @@ class MainActivity : ComponentActivity() {
         var permissionsGranted = recordAudioGranted
 
         var usersDropdownExpanded by remember { mutableStateOf(false) }
+        var volumeDropdownExpanded by remember { mutableStateOf(false) }
 
         val userIds: List<Int> = listOf(0, 1, 2, 3, 4, 5, 6)
         var selectedUserId by remember { mutableStateOf(initialUserId) }
+
+        val streamIds: List<String> by streamIdsLiveData.observeAsState(listOf())
+        var selectedVolumeStreamIndex by remember { mutableStateOf(0) }
+
         var token by remember { mutableStateOf(initialDeveloperToken) }
+        var volume: Int by remember { mutableStateOf(100) }
+
 
         Surface(color = MaterialTheme.colors.background) {
             Column(
@@ -191,7 +206,7 @@ class MainActivity : ComponentActivity() {
                                     //This value is used to assign to the DropDown the same width
                                     textfieldSize = coordinates.size.toSize()
                                 }
-                                .clickable{ usersDropdownExpanded = !usersDropdownExpanded },
+                                .clickable { usersDropdownExpanded = !usersDropdownExpanded },
                             readOnly = true,
                             enabled = false,
                             onValueChange = { },
@@ -300,6 +315,92 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
+
+                    try {
+                        streamIds[selectedVolumeStreamIndex]
+                    }catch (e: IndexOutOfBoundsException){
+                        if (streamIds.isNotEmpty()){
+                            selectedVolumeStreamIndex = 0
+                        }
+                    }
+                    if(streamIds.isNotEmpty()) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+
+                            Row(modifier = Modifier.width(200.dp)) {
+                                var textfieldSize by remember { mutableStateOf(Size.Zero) }
+                                OutlinedTextField(
+                                    value = "Stream: ${streamIds[selectedVolumeStreamIndex].takeLast(6)}",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .onGloballyPositioned { coordinates ->
+                                            //This value is used to assign to the DropDown the same width
+                                            textfieldSize = coordinates.size.toSize()
+                                        }
+                                        .clickable {
+                                            volumeDropdownExpanded = !volumeDropdownExpanded
+                                        },
+                                    readOnly = true,
+                                    enabled = false,
+                                    onValueChange = { },
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Filled.ArrowDropDown,
+                                            contentDescription = "dropdown arrow",
+                                            modifier = Modifier.clickable {
+                                                volumeDropdownExpanded = !volumeDropdownExpanded
+                                            }
+                                        )
+                                    },
+                                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                                        focusedBorderColor = Color.Black,
+                                        unfocusedBorderColor = Color.Black,
+                                        textColor = Color.Black,
+                                        disabledTextColor = Color.Black
+                                    )
+                                )
+
+                                DropdownMenu(
+                                    expanded = volumeDropdownExpanded && sdk != null,
+                                    onDismissRequest = { volumeDropdownExpanded = false },
+                                    modifier = Modifier
+                                        .width(with(LocalDensity.current) { textfieldSize.width.toDp() })
+                                        .background(MaterialTheme.colors.surface)
+                                ) {
+                                    streamIds.forEachIndexed { index, streamId ->
+                                        DropdownMenuItem(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            onClick = {
+                                                selectedVolumeStreamIndex = index
+                                                volumeDropdownExpanded = false
+                                                sdk?.getConnectionData()?.rxStreams?.forEach { stream ->
+                                                    if (stream.streamId == streamIds[selectedVolumeStreamIndex]){
+                                                        volume = stream.volume
+                                                    }
+                                                }
+                                            }
+                                        ) {
+                                            Text(text = "Stream: ${streamId.takeLast(6)}")
+                                        }
+                                    }
+                                }
+                            }
+
+                            Slider(
+                                modifier = Modifier
+                                    .height(20.dp)
+                                    .width(140.dp),
+                                value = (volume.toFloat()) / 100,
+                                onValueChange = { volume = (it * 100).toInt() },
+                                onValueChangeFinished = {
+                                    val streamIdToChangeVolume = streamIds[selectedVolumeStreamIndex]
+                                    sdk?.changeStreamVolume(streamId = streamIdToChangeVolume, volume)
+                                }
+                            )
+                        }
+                    }
+
+
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = BuildConfig.VERSION_NAME,
                     )
@@ -330,5 +431,11 @@ class MainActivity : ComponentActivity() {
         Handler(Looper.getMainLooper()).post {
             showToast(msg, duration)
         }
+    }
+
+    private fun showToastWithSerializedObject(obj: Any){
+        val gsonPretty = GsonBuilder().setPrettyPrinting().create()
+        val connectionDataString: String = gsonPretty.toJson(obj)
+        showToastFromNonUIThread(connectionDataString)
     }
 }

@@ -7,4 +7,3 @@ pluginManagement {
 }
 
 rootProject.name = "Sync Stage Quick Start"
-include ':app'

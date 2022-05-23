@@ -82,6 +82,8 @@ fun initSDK() {
        },
        onInitializationErrorListener = { _, msg -> showToastFromNonUIThread(msg) },
        onOperationErrorListener = { _, msg -> showToastFromNonUIThread(msg) },
+       onConnectionDataChange = {connectionData -> },
+       onStreamListChange = {connectionData -> updateStreamIdsList(connectionData)},
        throwExceptionsOnErrors = false,
    )
    showToast("Initialization in progress...")
@@ -90,7 +92,7 @@ fun initSDK() {
 
 > If you're building your own application outside of the example, the developer token can also be passed directly into the code and asigned to the accessToken variable in the MainActivity class.
 
-The first two buttons (‘Request `RECORD_AUDIO` permission’ and ‘Request `INTERNET` permission’) allow you to click to allow the permissions that Sync Stage requires from the Android Operating system.
+The first button (‘Request premissions’) allow you to click to allow the `RECORD_AUDIO` permission that Sync Stage requires from the Android Operating system.
 
 After that you’ll see buttons for core SDK steps to establish a connection for a user. All of code for these steps can be found in use in the following file:
 
@@ -100,13 +102,35 @@ After that you’ll see buttons for core SDK steps to establish a connection for
 
 Those steps are:
 
-1. `initSDK()` which creates the SDK object for future interactions. Importantly `initSDK()` accepts a userID variable which allows you to define the aforementioned user number on your SyncStage server.
+1. Call constructor of the SyncStage SDK to create an object for future interactions. Importantly constructor accepts a userID variable which allows you to define the aforementioned user number on your SyncStage server. Meaning of other constructor parameters is described in the following sections.
 2. `isInitialized()` which you can poll to check on the output of step 1. Once this returns `true` you can continue to the next steps.
 3. `connect()` which uses your SyncStage Early Access token to connect to your SyncStage server. Importantly, once more than one user is connected, they will then be able to start communicating via SyncStage.
 4. `disconnect()` which then disconnects the user that initialized this SDK instance from the server.
 
-One noteworthy SDK function is:
-5. `getExpirationTime()` which returns the amount of time you have left available on your SyncStage Early Access server token.
+Other noteworthy SDK functions are:
+
+5. `getConnectionData()` which returns `ConnectionData` object with detailed information about audio streams like connection status of each stream, network impact, or volume level of each stream.
+6. `changeStreamVolume(streamId: String, volume: int)` which allows to change volume of particular stream. Stream identificators are to be obtained from `getStreamIds()` or `getConnectionData()`
+7. `getStreamIds()` which returns list (`MutableList<String>`) of stream indentificatiors
+8. `getExpirationTime()` which returns the amount of time you have left available on your SyncStage Early Access server token.
+
+### SDK callbacks
+
+The constructor of the SyncStage class allows for registering callback listeners of specific asynchronous events:
+
+1. `onInitializedListener: () -> Unit` which informs about the successfull initialization of the SDK.
+2. `onInitializationErrorListener: (errorCode: ErrorCode, msg: String) -> Unit` which informs about SDK initialization problem.
+3. `onOperationErrorListener: (errorCode: ErrorCode, msg: String) -> Unit` which informs about errors that occured after the successfull initialization.
+4. `onConnectionDataChange: (connectionData: ConnectionData) -> Unit` which is called if any of the `ConnectionData` parameters have changed.
+5. `onStreamListChange: (connectionData: ConnectionData) -> Unit` which is called if status of any of `rxStreams` (incoming streams) have changed, e.g. is triggered when any stream joins or leaves the session.
+
+All of the callback parameters are optional.
+
+### SDK error handling
+
+SyncStage SDK can be configured to throw exceptions. To do so `throwExceptionsOnErrors` optional constructor marameter should be set to `true`.
+
+By default this value is set to `false` and exception handling should be done by using `onInitializationErrorListener` and `onOperationErrorListener` callbacks.
 
 # Looking for assistance
 
@@ -120,3 +144,20 @@ You can lean on the SyncStage Early Access Slack channel for assistance with con
 
 3. While it is possible to test with wireless headphones, we strongly recommend against it as doing so can add up to 300ms of latency.
 
+# Acknowledgements
+ We'd like to give a shout out to following open source projects that were used in the SDK and Quick Start Example development:
+
+* [Oboe](https://github.com/google/oboe)
+* [FFmpeg](https://github.com/FFmpeg/FFmpeg)
+* [OPUS](https://opus-codec.org/license/)
+* [Gson](https://github.com/google/gson)
+* [fat-aar-android](https://github.com/kezong/fat-aar-android)
+* [Dagger](https://github.com/google/dagger)
+* [Timber](https://github.com/JakeWharton/timber)
+* [Java JWT](https://github.com/auth0/java-jwt)
+* [Retrofit](https://github.com/square/retrofit)
+* [OkHttp](https://github.com/square/okhttp)
+* [Sandwich](https://github.com/skydoves/sandwich)
+* [Androidx](https://github.com/androidx/androidx)
+* [Material Components for Android](https://github.com/material-components/material-components-android)
+* [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines)

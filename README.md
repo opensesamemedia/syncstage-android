@@ -144,6 +144,9 @@ You can lean on the SyncStage Early Access Slack channel for assistance with con
 
 3. While it is possible to test with wireless headphones, we strongly recommend against it as doing so can add up to 300ms of latency.
 
+# SyncStage SDK package repository
+SyncStage SDK package repository can be found [here](https://github.com/opensesamemedia/syncstagesdkpackage).
+
 # Acknowledgements
  We'd like to give a shout out to following open source projects that were used in the SDK and Quick Start Example development:
 

@@ -102,35 +102,33 @@ After that you’ll see buttons for core SDK steps to establish a connection for
 
 Those steps are:
 
-1. Call constructor of the SyncStage SDK to create an object for future interactions. Importantly constructor accepts a userID variable which allows you to define the aforementioned user number on your SyncStage server. Meaning of other constructor parameters is described in the following sections.
+1. Call the constructor of the SyncStage SDK to create an object for future interactions. Importantly the constructor accepts a userID variable which allows you to define the aforementioned user number on your SyncStage server. The meaning of the other constructor parameters is described in the following sections.
 2. `isInitialized()` which you can poll to check on the output of step 1. Once this returns `true` you can continue to the next steps.
 3. `connect()` which uses your SyncStage Early Access token to connect to your SyncStage server. Importantly, once more than one user is connected, they will then be able to start communicating via SyncStage.
 4. `disconnect()` which then disconnects the user that initialized this SDK instance from the server.
 
 Other noteworthy SDK functions are:
 
-5. `getConnectionData()` which returns `ConnectionData` object with detailed information about audio streams like connection status of each stream, network impact, or volume level of each stream.
-6. `changeStreamVolume(streamId: String, volume: int)` which allows to change volume of particular stream. Stream identificators are to be obtained from `getStreamIds()` or `getConnectionData()`
-7. `getStreamIds()` which returns list (`MutableList<String>`) of stream indentificatiors
+5. `getConnectionData()` which returns a `ConnectionData` object with detailed information about the audio streams. This includes information including the connection status, network impact, or volume level of each stream.
+6. `changeStreamVolume(streamId: String, volume: int)` which allows you change volume of particular stream. Stream identificators are obtained from `getStreamIds()` or via `getConnectionData()`
+7. `getStreamIds()` which returns a list (of type `MutableList<String>`) of stream indentifiers.
 8. `getExpirationTime()` which returns the amount of time you have left available on your SyncStage Early Access server token.
 
 ### SDK callbacks
 
-The constructor of the SyncStage class allows for registering callback listeners of specific asynchronous events:
+The constructor of the SyncStage class allows you to register callback listeners for specific asynchronous events:
 
-1. `onInitializedListener: () -> Unit` which informs about the successfull initialization of the SDK.
-2. `onInitializationErrorListener: (errorCode: ErrorCode, msg: String) -> Unit` which informs about SDK initialization problem.
-3. `onOperationErrorListener: (errorCode: ErrorCode, msg: String) -> Unit` which informs about errors that occured after the successfull initialization.
-4. `onConnectionDataChange: (connectionData: ConnectionData) -> Unit` which is called if any of the `ConnectionData` parameters have changed.
-5. `onStreamListChange: (connectionData: ConnectionData) -> Unit` which is called if status of any of `rxStreams` (incoming streams) have changed, e.g. is triggered when any stream joins or leaves the session.
+1. `onInitializedListener: () -> Unit` for information on the successfull initialization of the SDK.
+2. `onInitializationErrorListener: (errorCode: ErrorCode, msg: String) -> Unit` for information about SDK initialization problems.
+3. `onOperationErrorListener: (errorCode: ErrorCode, msg: String) -> Unit` for information about errors that occured after the successfull initialization.
+4. `onConnectionDataChange: (connectionData: ConnectionData) -> Unit` is called if any of the `ConnectionData` parameters change.
+5. `onStreamListChange: (connectionData: ConnectionData) -> Unit` is called if the status of any of the `rxStreams` (incoming streams) have changed, e.g. is triggered when any stream joins or leaves the session.
 
-All of the callback parameters are optional.
+> All of the callback parameters are optional.
 
 ### SDK error handling
 
-SyncStage SDK can be configured to throw exceptions. To do so `throwExceptionsOnErrors` optional constructor marameter should be set to `true`.
-
-By default this value is set to `false` and exception handling should be done by using `onInitializationErrorListener` and `onOperationErrorListener` callbacks.
+SyncStage SDK can be configured to throw exceptions. To do so the `throwExceptionsOnErrors` optional constructor parameter should be set to `true`. By default this value is set to `false` and in this state, exception handling should be done by using `onInitializationErrorListener` and `onOperationErrorListener` callbacks.
 
 # Looking for assistance
 

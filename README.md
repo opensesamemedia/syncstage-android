@@ -103,16 +103,18 @@ After that you’ll see buttons for core SDK steps to establish a connection for
 Those steps are:
 
 1. Call constructor of the SyncStage SDK to create an object for future interactions. Importantly constructor accepts a userID variable which allows you to define the aforementioned user number on your SyncStage server. Meaning of other constructor parameters is described in the following sections.
-2. `isInitialized()` which you can poll to check on the output of step 1. Once this returns `true` you can continue to the next steps.
-3. `connect()` which uses your SyncStage Early Access token to connect to your SyncStage server. Importantly, once more than one user is connected, they will then be able to start communicating via SyncStage.
-4. `disconnect()` which then disconnects the user that initialized this SDK instance from the server.
+2. `isInitialized(): Boolean` which you can poll to check on the output of step 1. Once this returns `true` you can continue to the next steps.
+3. `connect(): Unit` which uses your SyncStage Early Access token to connect to your SyncStage server. Importantly, once more than one user is connected, they will then be able to start communicating via SyncStage.
+4. `disconnect(): Unit` which then disconnects the user that initialized this SDK instance from the server.
 
 Other noteworthy SDK functions are:
 
-5. `getConnectionData()` which returns `ConnectionData` object with detailed information about audio streams like connection status of each stream, network impact, or volume level of each stream.
-6. `changeStreamVolume(streamId: String, volume: int)` which allows to change volume of particular stream. Stream identificators are to be obtained from `getStreamIds()` or `getConnectionData()`
-7. `getStreamIds()` which returns list (`MutableList<String>`) of stream indentificatiors
-8. `getExpirationTime()` which returns the amount of time you have left available on your SyncStage Early Access server token.
+5. `getConnectionData(): ConnectionData?` which returns `ConnectionData` object with detailed information about audio streams like connection status of each stream, network impact, or volume level of each stream.
+6. `changeStreamVolume(streamId: String, volume: int): ErrorCode` which allows to change volume of particular stream. Stream identificators are to be obtained from `getStreamIds()` or `getConnectionData()`
+7. `getStreamIds(): MutableList<String>` which returns list (`MutableList<String>`) of stream indentificatiors
+8. `getExpirationTime(): Long?` which returns the amount of time you have left available on your SyncStage Early Access server token.
+8. `setMute(enabled: Boolean): ErrorCode` mutes / unmutes transmitter stream.
+8. `isMuted(): Boolean` which returns transmitter mute status.
 
 ### SDK callbacks
 

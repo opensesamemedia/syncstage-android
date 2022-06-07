@@ -1,5 +1,6 @@
 package media.opensesame.syncstagequickstart
 
+import media.opensesame.syncstagesdk.ConnectionData
 import android.Manifest
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -22,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -32,12 +33,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.GsonBuilder
 import media.opensesame.syncstagequickstart.ui.theme.FfmpegTestTheme
-import media.opensesame.syncstagesdk.ConnectionData
 import media.opensesame.syncstagesdk.SyncStage
 
 class MainActivity : ComponentActivity() {
     val TAG = "MainActivity"
-    var accessToken = ""
+    var accessToken =
+        ""
     var userId = 0
     private var sdk: SyncStage? = null
     private var streamIdsLiveData = MutableLiveData<List<String>>(listOf())
@@ -225,10 +226,10 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = Color.Black,
-                                unfocusedBorderColor = Color.Black,
-                                textColor = Color.Black,
-                                disabledTextColor = Color.Black
+                                focusedBorderColor = Black,
+                                unfocusedBorderColor = Black,
+                                textColor = Black,
+                                disabledTextColor = Black
                             )
                         )
 
@@ -353,10 +354,10 @@ class MainActivity : ComponentActivity() {
                                         )
                                     },
                                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                                        focusedBorderColor = Color.Black,
-                                        unfocusedBorderColor = Color.Black,
-                                        textColor = Color.Black,
-                                        disabledTextColor = Color.Black
+                                        focusedBorderColor = Black,
+                                        unfocusedBorderColor = Black,
+                                        textColor = Black,
+                                        disabledTextColor = Black
                                     )
                                 )
 
@@ -394,7 +395,7 @@ class MainActivity : ComponentActivity() {
                                 onValueChange = { volume = (it * 100).toInt() },
                                 onValueChangeFinished = {
                                     val streamIdToChangeVolume = streamIds[selectedVolumeStreamIndex]
-                                    sdk?.changeStreamVolume(streamId = streamIdToChangeVolume, volume)
+                                    sdk?.changeStreamVolume(rxStreamId = streamIdToChangeVolume, volume)
                                 }
                             )
                         }

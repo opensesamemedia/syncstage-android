@@ -20,15 +20,6 @@
         <deviceKey>
           <Key>
             <type value="SERIAL_NUMBER" />
-            <value value="RFCN90NR09W" />
-          </Key>
-        </deviceKey>
-      </Target>
-      <Target>
-        <type value="RUNNING_DEVICE_TARGET" />
-        <deviceKey>
-          <Key>
-            <type value="SERIAL_NUMBER" />
             <value value="adb-RFCN90XA3MB-ECErsU._adb-tls-connect._tcp" />
           </Key>
         </deviceKey>

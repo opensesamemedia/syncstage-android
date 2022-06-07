@@ -42,6 +42,8 @@ class MainActivity : ComponentActivity() {
     var userId = 0
     private var sdk: SyncStage? = null
     private var streamIdsLiveData = MutableLiveData<List<String>>(listOf())
+    private var isInitializedButtonsEnable = MutableLiveData(false)
+    private var isInitializing = MutableLiveData(false)
 
     private val requestMultiplePermissions =  registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
         permissions.entries.forEach {
@@ -70,14 +72,21 @@ class MainActivity : ComponentActivity() {
     // SDK interfacing =============================================================================
 
     fun initSDK() {
+        isInitializing.postValue(true)
         sdk = SyncStage(
             accessToken = accessToken,
             userId = userId,
             ctx = applicationContext,
             onInitializedListener = {
                 showToastFromNonUIThread("SDK Initialized Successfully")
+                isInitializing.postValue(false)
+                isInitializedButtonsEnable.postValue(true)
             },
-            onInitializationErrorListener = { _, msg -> showToastFromNonUIThread(msg) },
+            onInitializationErrorListener = { _, msg ->
+                showToastFromNonUIThread(msg)
+                isInitializing.postValue(false)
+                isInitializedButtonsEnable.postValue(false)
+            },
             onOperationErrorListener = { _, msg -> showToastFromNonUIThread(msg) },
             onConnectionDataChange = {connectionData -> },
             onStreamListChange = {connectionData -> updateStreamIdsList(connectionData)},
@@ -157,6 +166,9 @@ class MainActivity : ComponentActivity() {
 
         var token by remember { mutableStateOf(initialDeveloperToken) }
         var volume: Int by remember { mutableStateOf(100) }
+
+        val isInitialized by isInitializedButtonsEnable.observeAsState(false)
+        val isInitializing by isInitializing.observeAsState(false)
 
 
         Surface(color = MaterialTheme.colors.background) {
@@ -271,7 +283,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { initSDK() },
-                        enabled = permissionsGranted
+                        enabled = permissionsGranted && !isInitializing
                     ) {
                         Text("Initialize SDK")
                     }
@@ -287,7 +299,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { connect() },
-                        enabled = permissionsGranted
+                        enabled = permissionsGranted && isInitialized
                     ) {
                         Text("Connect")
                     }
@@ -295,7 +307,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { disconnect() },
-                        enabled = permissionsGranted
+                        enabled = permissionsGranted && isInitialized
                     ) {
                         Text("Disconnect")
                     }
@@ -303,7 +315,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { getConnectionData() },
-                        enabled = permissionsGranted
+                        enabled = permissionsGranted && isInitialized
                     ) {
                         Text("Get connection data")
                     }
@@ -311,7 +323,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { getExpirationTime() },
-                        enabled = permissionsGranted
+                        enabled = permissionsGranted && isInitialized
                     ) {
                         Text("Get expiration time")
                     }

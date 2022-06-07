@@ -159,7 +159,6 @@ SyncStage SDK package repository can be found [here](https://github.com/opensesa
 * [fat-aar-android](https://github.com/kezong/fat-aar-android)
 * [Dagger](https://github.com/google/dagger)
 * [Timber](https://github.com/JakeWharton/timber)
-* [Java JWT](https://github.com/auth0/java-jwt)
 * [Retrofit](https://github.com/square/retrofit)
 * [OkHttp](https://github.com/square/okhttp)
 * [Sandwich](https://github.com/skydoves/sandwich)

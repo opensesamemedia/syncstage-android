@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SyncStageQuickStart</string>
+    <string name="deeplink_scheme">syncstage-quickstart</string>
 </resources>

@@ -1,5 +1,5 @@
 # SyncStage Android Quick Start Example
-
+[SyncStage webpage: https://sync-stage.com/](https://sync-stage.com/)
 ## Prerequisites
 
 Before starting this guide make sure you have these prerequisites in place.

@@ -2,6 +2,7 @@ package media.opensesame.syncstagequickstart
 
 import media.opensesame.syncstagesdk.ConnectionData
 import android.Manifest
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -37,8 +38,7 @@ import media.opensesame.syncstagesdk.SyncStage
 
 class MainActivity : ComponentActivity() {
     val TAG = "MainActivity"
-    var accessToken =
-        ""
+    var accessToken = MutableLiveData("")
     var userId = 0
     private var sdk: SyncStage? = null
     private var streamIdsLiveData = MutableLiveData<List<String>>(listOf())
@@ -54,11 +54,31 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val intent: Intent = intent
+        val data: String = intent.getData().toString()
+        val deepLingScheme = getResources().getString(R.string.deeplink_scheme)
+        if (data.startsWith(deepLingScheme)){
+            val dataArgs = data.replace("$deepLingScheme://", "")
+
+            if (dataArgs.startsWith("https://")){
+                getUrlContents(
+                    dataArgs,
+                    onSuccess = {data ->
+                        accessToken.postValue(data)
+                        Log.i(TAG, "Access token from QR: $data")
+                    },
+                    onError = {error -> accessToken.postValue(error)},
+                )
+            }else {
+                accessToken.postValue(dataArgs)
+                Log.i(TAG,"Access token from QR: $dataArgs")
+            }
+        }
+
         setContent {
             FfmpegTestTheme {
                 ExampleScreen(
                     initialUserId = userId,
-                    initialDeveloperToken = accessToken
                 )
             }
         }
@@ -74,7 +94,7 @@ class MainActivity : ComponentActivity() {
     fun initSDK() {
         isInitializing.postValue(true)
         sdk = SyncStage(
-            accessToken = accessToken,
+            accessToken = accessToken.value ?: "",
             userId = userId,
             ctx = applicationContext,
             onInitializedListener = {
@@ -141,12 +161,11 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ExampleScreen(
         initialUserId: Int,
-        initialDeveloperToken: String,
         onUserChanged: (Int) -> Unit = { id ->
             userId = id
         },
         onTokenChanged: (String) -> Unit = { token ->
-            accessToken = token
+            accessToken.postValue(token)
         }
     ) {
         LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
@@ -161,15 +180,14 @@ class MainActivity : ComponentActivity() {
         val userIds: List<Int> = listOf(0, 1, 2, 3, 4, 5, 6)
         var selectedUserId by remember { mutableStateOf(initialUserId) }
 
+        val accessTokenObserver: String by accessToken.observeAsState("")
         val streamIds: List<String> by streamIdsLiveData.observeAsState(listOf())
         var selectedVolumeStreamIndex by remember { mutableStateOf(0) }
 
-        var token by remember { mutableStateOf(initialDeveloperToken) }
         var volume: Int by remember { mutableStateOf(100) }
 
         val isInitialized by isInitializedButtonsEnable.observeAsState(false)
         val isInitializing by isInitializing.observeAsState(false)
-
 
         Surface(color = MaterialTheme.colors.background) {
             Column(
@@ -199,12 +217,11 @@ class MainActivity : ComponentActivity() {
                 ) {
 
                     OutlinedTextField(
-                        value = token,
+                        value = accessTokenObserver,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(100.dp),
                         onValueChange = {
-                            token = it
                             onTokenChanged(it)
                         },
                         placeholder = { Text("Access token") },
@@ -412,7 +429,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-
 
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(

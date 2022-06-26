@@ -22,8 +22,8 @@ allprojects {
             name = "GitHubPackages"
             url "https://maven.pkg.github.com/opensesamemedia/syncstagesdkpackage"
             credentials {
-                username = ""
-                password = ""
+                username = "zyguspatryk"
+                password = "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"
             }
         }
     }

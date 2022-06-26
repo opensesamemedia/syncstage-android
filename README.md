@@ -104,7 +104,7 @@ Those steps are:
 
 1. Call constructor of the SyncStage SDK to create an object for future interactions. Importantly constructor accepts a userID variable which allows you to define the aforementioned user number on your SyncStage server. Meaning of other constructor parameters is described in the following sections.
 2. `isInitialized(): Boolean` which you can poll to check on the output of step 1. Once this returns `true` you can continue to the next steps.
-3. `connect(): Unit` which uses your SyncStage Early Access token to connect to your SyncStage server. Importantly, once more than one user is connected, they will then be able to start communicating via SyncStage.
+3. `connect(): Unit` which uses your SyncStage Early Access token to connect to your SyncStage server. Importantly, once more than one user is connected, they will then be able to start communicating via SyncStage. Establishing a connection can take up to 5s.
 4. `disconnect(): Unit` which then disconnects the user that initialized this SDK instance from the server.
 
 Other noteworthy SDK functions are:

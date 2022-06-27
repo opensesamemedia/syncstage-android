@@ -4,7 +4,7 @@
 
 Before starting this guide make sure you have these prerequisites in place.
 
-1. You have received a SyncStage access token by filling in the Early Access Request form here: <LINK>
+1. You have received a SyncStage access token by filling in the Early Access Request form [https://sync-stage.com/](HERE).
 
 2. We assume that you’re using [Android Studio](https://developer.android.com/studio). To test your Android device over wifi (as opposed to USB) you’ll need at least the “Bumble Bee” version of Android Studio. This is especially useful when you do not have a mini jack port in your smartphone and would like to use USB C headphones while debugging.
 

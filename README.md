@@ -136,7 +136,7 @@ By default this value is set to `false` and exception handling should be done by
 
 # Looking for assistance
 
-You can lean on the SyncStage Early Access Slack channel for assistance with connecting with your applications. You can join the channel INSERT LINK HERE or send us an email via INSERT EMAIL HERE
+You can lean on the SyncStage Early Access Slack channel for assistance with connecting with your applications. You can join the channel https://opensesamemedia.slack.com/ or send us an email via INSERT EMAIL HERE
 
 # Recommendations
 

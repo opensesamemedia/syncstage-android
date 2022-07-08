@@ -37,7 +37,7 @@ android {
 
     defaultConfig {
         applicationId "media.opensesame.syncstageandroidexample"
-        minSdk 27
+        minSdk 29
         targetSdk 31
 
         versionCode getVersionCode()
@@ -81,7 +81,7 @@ android {
 }
 
 dependencies {
-    implementation 'media.opensesame:syncstagesdk:0.16.0-2-gb8aa983'
+    implementation 'media.opensesame:syncstagesdk:0.17.0-9-g4555232'
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'

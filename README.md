@@ -50,6 +50,11 @@ SyncStage SDK requires following permissions to be added to AndroidManifest.xml:
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
 ## A note on user management in the current SyncStage platform
@@ -85,6 +90,7 @@ fun initSDK() {
        onConnectionDataChange = {connectionData -> },
        onStreamListChange = {connectionData -> updateStreamIdsList(connectionData)},
        throwExceptionsOnErrors = false,
+       allowForDataCollection = true
    )
    showToast("Initialization in progress...")
 }
@@ -92,9 +98,7 @@ fun initSDK() {
 
 > If you're building your own application outside of the example, the developer token can also be passed directly into the code and asigned to the accessToken variable in the MainActivity class.
 
-The first button (‘Request premissions’) allow you to click to allow the `RECORD_AUDIO` permission that Sync Stage requires from the Android Operating system.
-
-After that you’ll see buttons for core SDK steps to establish a connection for a user. All of code for these steps can be found in use in the following file:
+On the screen you can see buttons for core SDK steps to establish a connection for a user. All of code for these steps can be found in use in the following file:
 
 ```
 ./app/src/main/java/media/opensesame/syncstagequickstart/MainActivity.kt
@@ -133,6 +137,9 @@ All of the callback parameters are optional.
 SyncStage SDK can be configured to throw exceptions. To do so `throwExceptionsOnErrors` optional constructor marameter should be set to `true`.
 
 By default this value is set to `false` and exception handling should be done by using `onInitializationErrorListener` and `onOperationErrorListener` callbacks.
+
+### Diagnostic data collection
+`allowForDataCollection` parameter permits the SDK to collect information about location, your network provider, network parameters like jitter and latency, network type. We use this data to improve our services. The default value is `true`.
 
 # Looking for assistance
 

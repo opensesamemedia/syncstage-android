@@ -37,19 +37,17 @@ import media.opensesame.syncstagequickstart.ui.theme.FfmpegTestTheme
 import media.opensesame.syncstagesdk.SyncStage
 
 class MainActivity : ComponentActivity() {
-    val TAG = "MainActivity"
-    var accessToken = MutableLiveData("")
+    private val TAG = "MainActivity"
+    var accessToken = MutableLiveData(
+        ""
+    )
     var userId = 0
     private var sdk: SyncStage? = null
     private var streamIdsLiveData = MutableLiveData<List<String>>(listOf())
     private var isInitializedButtonsEnable = MutableLiveData(false)
     private var isInitializing = MutableLiveData(false)
 
-    private val requestMultiplePermissions =  registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-        permissions.entries.forEach {
-            Log.e(TAG, "TEST ${it.key} = ${it.value}")
-        }
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +55,24 @@ class MainActivity : ComponentActivity() {
         val intent: Intent = intent
         val data: String = intent.getData().toString()
         val deepLingScheme = getResources().getString(R.string.deeplink_scheme)
+
+        val permissionRequest = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            if (result.all { it.value }) {
+            }
+        }
+
+        if (!arePermissionsGranted()) {
+            permissionRequest.launch(arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.FOREGROUND_SERVICE,
+            ))
+        }
+
+
         if (data.startsWith(deepLingScheme)){
             val dataArgs = data.replace("$deepLingScheme://", "")
 
@@ -83,6 +99,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
     private fun updateStreamIdsList(connectionData: ConnectionData){
         showToastWithSerializedObject(connectionData)
@@ -111,6 +128,7 @@ class MainActivity : ComponentActivity() {
             onConnectionDataChange = {connectionData -> },
             onStreamListChange = {connectionData -> updateStreamIdsList(connectionData)},
             throwExceptionsOnErrors = false,
+            allowForDataCollection = true
         )
         showToast("Initialization in progress...")
     }
@@ -170,9 +188,6 @@ class MainActivity : ComponentActivity() {
     ) {
         LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 
-        var recordAudioGranted by remember { mutableStateOf(false) }
-        checkPermission(Manifest.permission.RECORD_AUDIO, onGranted = { recordAudioGranted = true })
-        var permissionsGranted = recordAudioGranted
 
         var usersDropdownExpanded by remember { mutableStateOf(false) }
         var volumeDropdownExpanded by remember { mutableStateOf(false) }
@@ -285,22 +300,10 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
-                    Button(modifier = Modifier.fillMaxWidth(), onClick = {
-                        requestMultiplePermissions.launch(
-                            arrayOf(
-                                Manifest.permission.RECORD_AUDIO
-                            ),
-                        )
-                        recordAudioGranted = true
-                    }) {
-                        Text("Request permissions")
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { initSDK() },
-                        enabled = permissionsGranted && !isInitializing
+                        enabled = !isInitializing
                     ) {
                         Text("Initialize SDK")
                     }
@@ -308,7 +311,6 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { isInitialized() },
-                        enabled = permissionsGranted
                     ) {
                         Text("Is initialized?")
                     }
@@ -316,7 +318,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { connect() },
-                        enabled = permissionsGranted && isInitialized
+                        enabled = isInitialized
                     ) {
                         Text("Connect")
                     }
@@ -324,7 +326,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { disconnect() },
-                        enabled = permissionsGranted && isInitialized
+                        enabled = isInitialized
                     ) {
                         Text("Disconnect")
                     }
@@ -332,7 +334,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { getConnectionData() },
-                        enabled = permissionsGranted && isInitialized
+                        enabled = isInitialized
                     ) {
                         Text("Get connection data")
                     }
@@ -340,7 +342,7 @@ class MainActivity : ComponentActivity() {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { getExpirationTime() },
-                        enabled = permissionsGranted && isInitialized
+                        enabled = isInitialized
                     ) {
                         Text("Get expiration time")
                     }
@@ -439,15 +441,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun checkPermission(permission: String, onGranted: () -> Unit = {}){
-        if (ContextCompat.checkSelfPermission(
-                applicationContext,
-                permission
-            ) == PackageManager.PERMISSION_GRANTED){
+    private fun arePermissionsGranted(): Boolean {
 
-            Log.d(TAG, "$permission permission granted")
-            onGranted()
-        }
+        val fineLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        val readPhoneState = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+        val recordAudio = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+        val writeStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val readStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+
+        return (fineLocation == PackageManager.PERMISSION_GRANTED)
+                && (readPhoneState == PackageManager.PERMISSION_GRANTED)
+                && (recordAudio == PackageManager.PERMISSION_GRANTED)
+                && (writeStorage == PackageManager.PERMISSION_GRANTED)
+                && (readStorage == PackageManager.PERMISSION_GRANTED)
     }
 
     private fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT, printDebug: Boolean = true) {
@@ -469,4 +475,5 @@ class MainActivity : ComponentActivity() {
         showToastFromNonUIThread(connectionDataString)
     }
 }
+
 
